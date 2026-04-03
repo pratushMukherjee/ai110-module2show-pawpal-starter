@@ -9,12 +9,15 @@ Manage tasks: Add/edit/delete care tasks (type, duration, priority, recurrence).
 Generate today's plan: Create and view a prioritized daily schedule with explanations.
 
 - Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
 
+I designed a small, modular UML: data classes (Owner, Pet, Task) hold profiles and task details, TaskManager handles CRUD, and Scheduler with TimeWindow/Schedule handles planning against availability. This separation keeps data, management, and planning responsibilities isolated for easier testing and iteration.
+
+- What classes did you include, and what responsibilities did you assign to each?
+I modeled PawPal+ with simple objects: Owner and Pet hold profiles, Task represents care actions, TaskManager handles CRUD, and Scheduler builds a daily Schedule from tasks + availability.
+In short: data (owners/pets/tasks), management (TaskManager), and planning (Scheduler) — each with a single clear responsibility.
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+I added an explicit `pets` list to `Owner` and implemented basic `TaskManager` methods so tasks can be linked to pets and queried by date. This simplifies lookups and reduces scheduler complexity when selecting tasks for a given owner and day.
 
 ---
 
