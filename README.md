@@ -50,3 +50,20 @@ This project adds a few incremental scheduler improvements:
 - Filters tasks by pet and completion status for targeted views.
 - Automatically creates a stub for the next occurrence when a recurring task is completed (caller assigns an id and adds it to the pet).
 - Performs lightweight conflict detection for exact start-time matches and returns warnings instead of failing.
+
+## Testing PawPal+
+
+Run the tests with:
+
+```bash
+python -m pytest
+```
+
+Tests cover:
+- Basic task operations (marking complete)
+- Pet/task CRUD
+- Sorting tasks by time
+- Recurrence behavior (daily tasks produce next occurrence)
+- Conflict detection for identical start times
+
+Confidence level: ★★★★☆ (4/5) — core behaviors tested, more edge cases could be added for complex overlaps and timezone handling.
