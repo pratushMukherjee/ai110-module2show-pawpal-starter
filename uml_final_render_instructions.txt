@@ -1,0 +1,11 @@
+The final UML diagram is saved as `uml_final.mmd` (Mermaid markup).
+
+To produce a PNG from this file, you can use a Mermaid renderer such as the `mmdc` (mermaid.cli) tool:
+
+1. Install mermaid.cli (requires Node.js):
+   npm install -g @mermaid-js/mermaid-cli
+
+2. Render PNG:
+   mmdc -i uml_final.mmd -o uml_final.png
+
+Or paste the contents into an online Mermaid live editor and export a PNG/SVG.

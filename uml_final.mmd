@@ -1,0 +1,101 @@
+%% PawPal+ final UML (Mermaid)
+classDiagram
+    class Owner {
+        +int id
+        +string name
+        +string contact
+        +List~TimeWindow~ availability
+        +Map~string,any~ preferences
+        +string timezone
+        +List~Pet~ pets
+        +update_preferences(preferences)
+        +set_availability(windows)
+        +add_pet(Pet)
+        +get_available_windows(date) TimeWindow[]
+        +get_all_tasks() Task[]
+    }
+
+    class Pet {
+        +int id
+        +int owner_id
+        +string name
+        +string species
+        +int age
+        +float weight
+        +List~string~ special_needs
+        +List~Task~ default_tasks
+        +List~Task~ tasks
+        +update_info(**data)
+        +add_task_template(Task)
+        +add_task(Task)
+        +get_tasks() Task[]
+        +needs_medication_on(date) bool
+    }
+
+    class Task {
+        +int id
+        +int pet_id
+        +string title
+        +string type
+        +int duration_minutes
+        +int priority
+        +time earliest_time
+        +time latest_time
+        +string recurrence
+        +string location
+        +string notes
+        +List~date~ completed_dates
+        +is_due_on(date) bool
+        +next_occurrence(after_date) date
+        +mark_complete(date) Task?
+        +overlaps_with(Task) bool
+    }
+
+    class TaskManager {
+        +List~Task~ tasks
+        +List~Task~ task_templates
+        +add_task(Task)
+        +edit_task(id, **fields)
+        +delete_task(id)
+        +get_tasks_for_date(date) Task[]
+        +get_tasks_for_pet(pet_id) Task[]
+    }
+
+    class TimeWindow {
+        +time start_time
+        +time end_time
+        +Set~int~ weekdays
+        +contains(datetime) bool
+        +intersect(TimeWindow) TimeWindow?
+    }
+
+    class Scheduler {
+        +Map~string,any~ constraints
+        +Map~string,float~ scoring_rules
+        +generate_daily_plan(date, tasks, owner) Schedule
+        +score_task(Task, context) float
+        +sort_by_time(Task[]) Task[]
+        +filter_tasks(Task[], owner?, pet_name?, completed?) Task[]
+        +detect_conflicts(Schedule) List~string~
+        +place_tasks_into_slots(Task[], TimeWindow[]) Schedule
+        +explain_choice(Schedule) string
+    }
+
+    class Schedule {
+        +date date
+        +List~(time,Task)~ slots
+        +int total_duration
+        +float score
+        +string explanation
+        +to_display() dict
+        +get_tasks() Task[]
+        +serialize() dict
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    TaskManager "1" o-- "0..*" Task : manages
+    Scheduler ..> TaskManager : may use
+    Scheduler ..> Owner : queries
+    Scheduler ..> TimeWindow : checks
+    Schedule "1" o-- "0..*" Task : slots contain

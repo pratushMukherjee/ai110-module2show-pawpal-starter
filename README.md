@@ -51,6 +51,14 @@ This project adds a few incremental scheduler improvements:
 - Automatically creates a stub for the next occurrence when a recurring task is completed (caller assigns an id and adds it to the pet).
 - Performs lightweight conflict detection for exact start-time matches and returns warnings instead of failing.
 
+## Features
+
+- Sorting by time: tasks are sorted by earliest start time before display.
+- Priority-based placement: higher-priority tasks are scheduled first.
+- Recurrence support: daily/weekly tasks produce next-occurrence stubs when completed.
+- Filtering: view tasks by pet or completion status.
+- Conflict warnings: lightweight detection for tasks sharing the same start time.
+
 ## Testing PawPal+
 
 Run the tests with:
@@ -67,3 +75,10 @@ Tests cover:
 - Conflict detection for identical start times
 
 Confidence level: ★★★★☆ (4/5) — core behaviors tested, more edge cases could be added for complex overlaps and timezone handling.
+
+## Demo
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+

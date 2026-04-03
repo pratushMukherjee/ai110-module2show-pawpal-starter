@@ -116,11 +116,26 @@ st.caption("This button should call your scheduling logic once you implement it.
 if st.button("Generate schedule"):
     scheduler = Scheduler()
     plan = scheduler.generate_daily_plan(date.today(), tasks=[], owner=st.session_state.owner_obj)
+    # detect conflicts and show warnings
+    warnings = scheduler.detect_conflicts(plan)
+    for w in warnings:
+        st.warning(w)
+
     if not plan.slots:
         st.warning(plan.explanation)
     else:
-        rows = []
+        # prepare a nicer display: sort slots by start time and use st.table
         pet_names = {p.id: p.name for p in st.session_state.owner_obj.pets}
-        for start_time, task in plan.slots:
-            rows.append({"time": start_time.strftime("%H:%M"), "pet": pet_names.get(task.pet_id, "-"), "task": task.title, "duration": task.duration_minutes})
-        st.table(rows)
+        display_rows = []
+        for start_time, task in sorted(plan.slots, key=lambda s: (s[0].hour, s[0].minute)):
+            display_rows.append({
+                "Time": start_time.strftime("%H:%M"),
+                "Pet": pet_names.get(task.pet_id, "-"),
+                "Task": task.title,
+                "Duration (min)": task.duration_minutes,
+                "Priority": task.priority,
+            })
+        st.success(f"Generated schedule — {len(display_rows)} tasks")
+        st.table(display_rows)
+        # show summary
+        st.markdown(f"**Total duration:** {plan.total_duration} minutes — **Score:** {plan.score:.2f}")
