@@ -19,6 +19,10 @@ In short: data (owners/pets/tasks), management (TaskManager), and planning (Sche
 
 I added an explicit `pets` list to `Owner` and implemented basic `TaskManager` methods so tasks can be linked to pets and queried by date. This simplifies lookups and reduces scheduler complexity when selecting tasks for a given owner and day.
 
+**2b. Tradeoffs**
+
+- The scheduler currently detects conflicts by exact start-time matches (a lightweight check) rather than detecting all overlapping durations; this is simpler and faster but can miss partial overlaps.
+
 ---
 
 ## 2. Scheduling Logic and Tradeoffs

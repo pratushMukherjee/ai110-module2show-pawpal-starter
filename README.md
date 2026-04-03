@@ -41,3 +41,12 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+## Smarter Scheduling
+
+This project adds a few incremental scheduler improvements:
+
+- Sorts tasks by earliest time before building the plan.
+- Filters tasks by pet and completion status for targeted views.
+- Automatically creates a stub for the next occurrence when a recurring task is completed (caller assigns an id and adds it to the pet).
+- Performs lightweight conflict detection for exact start-time matches and returns warnings instead of failing.

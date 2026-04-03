@@ -144,10 +144,45 @@ class Task:
 		# unsupported recurrence format -> None
 		return None
 
-	def mark_complete(self, on_date: date) -> None:
-		"""Mark the task as completed on the given date."""
+	def mark_complete(self, on_date: date) -> Optional["Task"]:
+		"""Mark the task as completed on the given date.
+
+		If the task is recurring (`daily` or `weekly`), returns a new Task instance
+		representing the next occurrence; otherwise returns None.
+		"""
 		if on_date not in self.completed_dates:
 			self.completed_dates.append(on_date)
+		# Create next occurrence task stub when recurring
+		if self.recurrence == "daily":
+			# return a shallow copy representing next day's task
+			return Task(
+				id=-1,
+				pet_id=self.pet_id,
+				title=self.title,
+				type=self.type,
+				duration_minutes=self.duration_minutes,
+				priority=self.priority,
+				earliest_time=self.earliest_time,
+				latest_time=self.latest_time,
+				recurrence=self.recurrence,
+				location=self.location,
+				notes=self.notes,
+			)
+		if self.recurrence == "weekly":
+			return Task(
+				id=-1,
+				pet_id=self.pet_id,
+				title=self.title,
+				type=self.type,
+				duration_minutes=self.duration_minutes,
+				priority=self.priority,
+				earliest_time=self.earliest_time,
+				latest_time=self.latest_time,
+				recurrence=self.recurrence,
+				location=self.location,
+				notes=self.notes,
+			)
+		return None
 
 	def overlaps_with(self, other: "Task") -> bool:
 		"""Return True if this task's time window overlaps with another task's time window."""
@@ -232,6 +267,46 @@ class Scheduler:
 		"""Compute a simple heuristic score for a task in context."""
 		# Simple heuristic: higher priority -> higher score, shorter tasks slightly preferred
 		return float(task.priority) - (task.duration_minutes / 60.0) * 0.05
+
+	def sort_by_time(self, tasks: List[Task]) -> List[Task]:
+		"""Return tasks sorted by earliest_time (tasks without time go last)."""
+		def key_fn(t: Task):
+			if t.earliest_time:
+				return (t.earliest_time.hour, t.earliest_time.minute)
+			# place tasks without time at end
+			return (24, 0)
+
+		return sorted(tasks, key=key_fn)
+
+	def filter_tasks(self, tasks: List[Task], owner: Optional[Owner] = None, pet_name: Optional[str] = None, completed: Optional[bool] = None) -> List[Task]:
+		"""Filter tasks by pet name and/or completion status.
+
+		If `pet_name` is provided, `owner` must be provided to map names to pet ids.
+		If `completed` is True, returns tasks that have at least one completed date; False returns not completed.
+		"""
+		result = list(tasks)
+		if pet_name and owner:
+			pet_ids = [p.id for p in owner.pets if p.name == pet_name]
+			result = [t for t in result if t.pet_id in pet_ids]
+		if completed is not None:
+			if completed:
+				result = [t for t in result if len(t.completed_dates) > 0]
+			else:
+				result = [t for t in result if len(t.completed_dates) == 0]
+		return result
+
+	def detect_conflicts(self, plan: Schedule) -> List[str]:
+		"""Return lightweight conflict warnings for tasks scheduled at the same start time."""
+		warnings: List[str] = []
+		seen: Dict[str, List[Task]] = {}
+		for start_time, task in plan.slots:
+			key = start_time.strftime("%H:%M")
+			seen.setdefault(key, []).append(task)
+		for k, tasks_at_time in seen.items():
+			if len(tasks_at_time) > 1:
+				pet_ids = {t.pet_id for t in tasks_at_time}
+				warnings.append(f"Conflict at {k}: {len(tasks_at_time)} tasks scheduled (pets: {sorted(list(pet_ids))}).")
+		return warnings
 
 	def place_tasks_into_slots(self, tasks: List[Task], windows: List[TimeWindow]) -> Schedule:
 		"""Place tasks greedily into available time windows and return a Schedule."""
