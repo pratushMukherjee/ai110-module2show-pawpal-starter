@@ -4,6 +4,10 @@
 
 **a. Initial design**
 
+Add a pet: Create a pet profile (name, species, age, owner preferences).
+Manage tasks: Add/edit/delete care tasks (type, duration, priority, recurrence).
+Generate today's plan: Create and view a prioritized daily schedule with explanations.
+
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
